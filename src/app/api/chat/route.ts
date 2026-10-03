@@ -35,9 +35,12 @@ function textStream(source: AsyncIterable<string>): Response {
         for await (const delta of source) controller.enqueue(encoder.encode(delta));
       } catch (err) {
         console.error("Chat stream failed", err);
+        const busy = err instanceof Error && err.message.includes(" 429 ");
         controller.enqueue(
           encoder.encode(
-            `\n\nSorry, I'm having trouble right now. Please call us at ${clinic.phone} and our team will help.`,
+            busy
+              ? `\n\nI'm getting a lot of questions right now. Please try again in a moment, or call us at ${clinic.phone}.`
+              : `\n\nSorry, I'm having trouble right now. Please call us at ${clinic.phone} and our team will help.`,
           ),
         );
       } finally {

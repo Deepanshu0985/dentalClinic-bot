@@ -33,8 +33,11 @@ const sleep = (ms: number, signal?: AbortSignal) =>
  * errors with backoff. Free Mistral plans allow very few requests per second,
  * and each chat turn makes two calls (embedding + chat) back to back.
  */
-async function mistralPost(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
-  const delays = [1000, 2000, 4000];
+async function mistralPost(
+  path: string,
+  body: unknown,
+  { signal, delays = [1000, 2000, 4000] }: { signal?: AbortSignal; delays?: number[] } = {},
+): Promise<Response> {
   for (let attempt = 0; ; attempt++) {
     const res = await fetch(`${API_BASE}${path}`, {
       method: "POST",
@@ -52,7 +55,9 @@ async function mistralPost(path: string, body: unknown, signal?: AbortSignal): P
 }
 
 export async function embedQuery(text: string): Promise<number[]> {
-  const res = await mistralPost("/embeddings", { model: EMBED_MODEL, input: [text] });
+  // No retries: if embeddings are rate limited, retrieval falls back to keyword
+  // search right away and the request budget is saved for the chat reply.
+  const res = await mistralPost("/embeddings", { model: EMBED_MODEL, input: [text] }, { delays: [] });
   if (!res.ok) throw new Error(`Mistral embeddings failed: ${res.status}`);
   const json = (await res.json()) as { data: { embedding: number[] }[] };
   return json.data[0].embedding;
@@ -69,7 +74,7 @@ export async function* streamChat(
   const res = await mistralPost(
     "/chat/completions",
     { model: CHAT_MODEL, messages, temperature: 0.3, max_tokens: 600, stream: true },
-    signal,
+    { signal },
   );
   if (!res.ok || !res.body) {
     throw new Error(`Mistral chat failed: ${res.status} ${await res.text().catch(() => "")}`);
