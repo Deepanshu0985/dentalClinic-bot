@@ -1,0 +1,252 @@
+{
+  "model": null,
+  "generatedAt": "2026-10-03T10:32:06.774Z",
+  "chunks": [
+    {
+      "id": "01-about-and-hours#1",
+      "source": "01-about-and-hours.md",
+      "title": "About Brightsmile Dental – Who we are",
+      "text": "Brightsmile Dental is a family and cosmetic dental clinic in Austin, Texas. We treat children (from age 3), adults and seniors. Our team includes 3 dentists, 4 hygienists and a friendly front-desk team. We have been serving Austin since 2011."
+    },
+    {
+      "id": "01-about-and-hours#2",
+      "source": "01-about-and-hours.md",
+      "title": "About Brightsmile Dental – Location and parking",
+      "text": "Address: 2400 Lakeview Drive, Suite 110, Austin, TX 78701.\nFree parking is available in front of the building, including 2 accessible parking spots. The clinic is on the ground floor and is fully wheelchair accessible. We are a 5-minute walk from the Lakeview bus stop (routes 7 and 20)."
+    },
+    {
+      "id": "01-about-and-hours#3",
+      "source": "01-about-and-hours.md",
+      "title": "About Brightsmile Dental – Opening hours",
+      "text": "Monday to Thursday: 8:00 AM – 6:00 PM.\nFriday: 8:00 AM – 4:00 PM.\nSaturday: 9:00 AM – 1:00 PM (every Saturday).\nSunday: closed.\nWe are closed on major US public holidays (New Year's Day, Memorial Day, Independence Day, Labor Day, Thanksgiving and Christmas Day)."
+    },
+    {
+      "id": "01-about-and-hours#4",
+      "source": "01-about-and-hours.md",
+      "title": "About Brightsmile Dental – Contact",
+      "text": "Phone: (512) 555-0147.\nEmail: hello@brightsmile-dental.example.\nOnline: patients can request an appointment through the chat on our website at any time, and our front desk confirms it by phone or email within one business day."
+    },
+    {
+      "id": "01-about-and-hours#5",
+      "source": "01-about-and-hours.md",
+      "title": "About Brightsmile Dental – Languages",
+      "text": "Our team speaks English and Spanish."
+    },
+    {
+      "id": "02-services-and-prices#1",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – New patient exam and cleaning",
+      "text": "New patient visit (comprehensive exam, full X-rays and a regular cleaning): $199 self-pay. It takes about 60–75 minutes.\nRoutine check-up and cleaning for existing patients: $149 self-pay, about 45 minutes. We recommend a check-up every 6 months.\nDeep cleaning (scaling and root planing) for gum disease: from $220 per quarter of the mouth."
+    },
+    {
+      "id": "02-services-and-prices#2",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Fillings",
+      "text": "Tooth-colored (composite) fillings: from $160 to $280 per tooth depending on size. Most fillings are done in a single visit of 30–60 minutes."
+    },
+    {
+      "id": "02-services-and-prices#3",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Teeth whitening",
+      "text": "In-office professional whitening (one 90-minute visit): $499.\nTake-home whitening kit with custom trays: $299.\nResults usually last 1–3 years depending on diet and habits such as coffee, tea, red wine and smoking."
+    },
+    {
+      "id": "02-services-and-prices#4",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Invisalign and clear aligners",
+      "text": "Invisalign clear aligners: from $3,800 to $6,200 depending on the complexity of the case. Treatment usually lasts 6–18 months.\nThe Invisalign consultation, including a 3D scan of your teeth, is free.\nMonthly payment plans are available (see payment options)."
+    },
+    {
+      "id": "02-services-and-prices#5",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Dental implants",
+      "text": "A single dental implant including the crown: from $3,900. The full process usually takes 3–6 months because the implant needs time to heal into the bone.\nThe implant consultation, including a 3D CT scan, costs $99 and the fee is credited back if you go ahead with treatment."
+    },
+    {
+      "id": "02-services-and-prices#6",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Crowns and bridges",
+      "text": "Porcelain crown: from $1,150 per tooth. We usually need 2 visits about 2 weeks apart.\nBridge: priced per unit, from $1,100 per unit."
+    },
+    {
+      "id": "02-services-and-prices#7",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Root canal treatment",
+      "text": "Front tooth: from $850. Molar (back tooth): from $1,250. A crown is often recommended after a root canal on a back tooth."
+    },
+    {
+      "id": "02-services-and-prices#8",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Tooth extraction",
+      "text": "Simple extraction: from $180. Surgical extraction or wisdom tooth removal: from $350 per tooth."
+    },
+    {
+      "id": "02-services-and-prices#9",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Children's dentistry",
+      "text": "Children's check-up and cleaning: $99 self-pay. We offer fluoride treatment and sealants to prevent cavities. Kids get a small prize after every visit."
+    },
+    {
+      "id": "02-services-and-prices#10",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Cosmetic dentistry",
+      "text": "Porcelain veneers: from $1,200 per tooth. A free smile consultation is available for veneers and smile makeovers."
+    },
+    {
+      "id": "02-services-and-prices#11",
+      "source": "02-services-and-prices.md",
+      "title": "Services and prices – Sedation and nervous patients",
+      "text": "We offer nitrous oxide (\"laughing gas\") for $75 per visit, and oral sedation for longer procedures. Many of our patients are nervous about the dentist; tell us and we will go slowly, explain each step and agree on a stop signal with you."
+    },
+    {
+      "id": "03-insurance-and-payment#1",
+      "source": "03-insurance-and-payment.md",
+      "title": "Insurance and payment – Insurance we accept",
+      "text": "We are in-network with Delta Dental (PPO), Cigna Dental (PPO), MetLife, Aetna Dental (PPO), Guardian and United Concordia. We are happy to file claims for most other PPO plans as an out-of-network provider. We do not accept HMO/DHMO plans or Medicaid.\nPatients should bring their insurance card to their first visit. Our team can check your benefits before your appointment if you send us your insurance details."
+    },
+    {
+      "id": "03-insurance-and-payment#2",
+      "source": "03-insurance-and-payment.md",
+      "title": "Insurance and payment – Payment methods",
+      "text": "We accept cash, all major credit and debit cards, HSA and FSA cards, Apple Pay and Google Pay. Payment is due at the time of the visit."
+    },
+    {
+      "id": "03-insurance-and-payment#3",
+      "source": "03-insurance-and-payment.md",
+      "title": "Insurance and payment – Payment plans and financing",
+      "text": "For treatment over $1,000 we offer financing through CareCredit and Sunbit, with 0% interest plans for 6 or 12 months for approved patients. Invisalign and implants can also be paid with an in-house monthly plan with a down payment."
+    },
+    {
+      "id": "03-insurance-and-payment#4",
+      "source": "03-insurance-and-payment.md",
+      "title": "Insurance and payment – Brightsmile Membership Plan (no insurance)",
+      "text": "For patients without insurance: $29 per month or $299 per year for adults, $19 per month for children. The plan includes 2 check-ups and cleanings per year, all routine X-rays, one emergency exam per year and 15% off all other treatments."
+    },
+    {
+      "id": "04-appointments-and-policies#1",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – How to book",
+      "text": "Patients can request an appointment through the website chat at any time, by calling (512) 555-0147 during opening hours, or by email. Our front desk confirms the exact time by phone or email within one business day. New patients can usually be seen within 1 week."
+    },
+    {
+      "id": "04-appointments-and-policies#2",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – First visit",
+      "text": "Please arrive 10 minutes early to complete forms, or fill them in online beforehand using the link we send you. Bring a photo ID, your insurance card (if you have one) and a list of the medicines you take."
+    },
+    {
+      "id": "04-appointments-and-policies#3",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – Cancellations and rescheduling",
+      "text": "Please give us at least 24 hours' notice to cancel or reschedule. Missed appointments or cancellations with less than 24 hours' notice may be charged a $50 fee."
+    },
+    {
+      "id": "04-appointments-and-policies#4",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – Running late",
+      "text": "If you are more than 15 minutes late we may need to reschedule your appointment so that other patients are not kept waiting."
+    },
+    {
+      "id": "04-appointments-and-policies#5",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – Children",
+      "text": "Children under 18 must be accompanied by a parent or legal guardian at their first visit."
+    },
+    {
+      "id": "04-appointments-and-policies#6",
+      "source": "04-appointments-and-policies.md",
+      "title": "Appointments and policies – Privacy",
+      "text": "We follow HIPAA rules. Medical information is only shared with your permission. Please do not send detailed medical records through the website chat; our team will collect them securely at your visit."
+    },
+    {
+      "id": "05-emergencies#1",
+      "source": "05-emergencies.md",
+      "title": "Dental emergencies – Same-day emergency appointments",
+      "text": "We keep time free every weekday for dental emergencies such as severe toothache, a broken or knocked-out tooth, a lost filling or crown, swelling, or a broken denture. Emergency exam with X-ray: $129 self-pay (free with the membership plan once a year). Call (512) 555-0147 as early as possible in the day."
+    },
+    {
+      "id": "05-emergencies#2",
+      "source": "05-emergencies.md",
+      "title": "Dental emergencies – Knocked-out adult tooth",
+      "text": "Time matters: the best results are within 30–60 minutes. Pick the tooth up by the crown (the white part), not the root. If it is dirty, rinse it gently with milk or water without scrubbing. If possible, place it back in the socket and bite on a clean cloth, or keep it in a cup of milk. Call us immediately at (512) 555-0147."
+    },
+    {
+      "id": "05-emergencies#3",
+      "source": "05-emergencies.md",
+      "title": "Dental emergencies – Outside opening hours",
+      "text": "If you have a dental emergency outside our opening hours, call (512) 555-0147 and follow the message to reach our on-call dentist."
+    },
+    {
+      "id": "05-emergencies#4",
+      "source": "05-emergencies.md",
+      "title": "Dental emergencies – When to go to the hospital",
+      "text": "Go to the nearest emergency room or call 911 if you have swelling that affects breathing or swallowing, swelling spreading to the eye or neck, a high fever with facial swelling, heavy bleeding that does not stop after 15 minutes of firm pressure, or an injury to the jaw or head."
+    },
+    {
+      "id": "06-faq#1",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Does teeth whitening hurt?",
+      "text": "Whitening does not hurt, but some people feel temporary tooth sensitivity for 24–48 hours. We use a desensitizing gel to reduce this."
+    },
+    {
+      "id": "06-faq#2",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Do dental implants hurt?",
+      "text": "The implant is placed under local anesthetic, so you should not feel pain during the procedure. Most patients describe mild soreness for 2–4 days afterwards, which is managed with regular over-the-counter pain relief. Sedation is available for nervous patients."
+    },
+    {
+      "id": "06-faq#3",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – How long does Invisalign take?",
+      "text": "Most treatments take 6–18 months. You wear the aligners 20–22 hours a day and switch to a new set every 1–2 weeks. We check progress every 6–8 weeks."
+    },
+    {
+      "id": "06-faq#4",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – How often should I get a check-up?",
+      "text": "Every 6 months for most people. Patients with gum disease may need a cleaning every 3–4 months."
+    },
+    {
+      "id": "06-faq#5",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Do you see children?",
+      "text": "Yes, from age 3. We recommend the first check-up by age 3 or when all baby teeth have come in."
+    },
+    {
+      "id": "06-faq#6",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Are X-rays safe?",
+      "text": "We use digital X-rays, which use up to 80% less radiation than traditional film X-rays. We only take X-rays when they are needed. Tell us if you are or might be pregnant."
+    },
+    {
+      "id": "06-faq#7",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Can I get a quote before booking?",
+      "text": "We can give typical price ranges, but an exact quote needs an exam because every mouth is different. Invisalign and veneer consultations are free."
+    },
+    {
+      "id": "06-faq#8",
+      "source": "06-faq.md",
+      "title": "Frequently asked questions – Do you offer second opinions?",
+      "text": "Yes. Bring your X-rays and treatment plan from another dentist and we will review them at a regular exam visit."
+    },
+    {
+      "id": "07-team#1",
+      "source": "07-team.md",
+      "title": "Our team – Dr. Sarah Mitchell, DDS – Lead dentist",
+      "text": "Dr. Mitchell founded Brightsmile Dental in 2011. She focuses on implants and cosmetic dentistry and is a certified Invisalign provider."
+    },
+    {
+      "id": "07-team#2",
+      "source": "07-team.md",
+      "title": "Our team – Dr. James Ortega, DMD – General and family dentist",
+      "text": "Dr. Ortega treats patients of all ages, has a special interest in children's dentistry and nervous patients, and speaks Spanish."
+    },
+    {
+      "id": "07-team#3",
+      "source": "07-team.md",
+      "title": "Our team – Dr. Priya Nair, DDS – Root canals and restorative dentistry",
+      "text": "Dr. Nair focuses on root canal treatment, crowns and bridges, and complex restorations."
+    }
+  ]
+}
