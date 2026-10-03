@@ -163,7 +163,15 @@ export function ChatWidget({ embedded = false }: { embedded?: boolean }) {
         update(botId, { content: stripMarker(raw).clean });
       }
       const { clean, hasMarker } = stripMarker(raw);
-      update(botId, { content: clean, showBookingForm: hasMarker });
+      update(botId, {
+        // Never leave an empty bubble (the typing dots) if the model returned nothing.
+        content:
+          clean ||
+          (hasMarker
+            ? "Please fill in the form below and our front desk will confirm your appointment."
+            : `Sorry, I didn't catch that. Could you rephrase, or call us at ${clinic.phone}?`),
+        showBookingForm: hasMarker,
+      });
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
       update(botId, {

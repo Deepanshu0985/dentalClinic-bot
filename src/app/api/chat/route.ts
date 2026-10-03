@@ -1,6 +1,6 @@
 import { alwaysInclude, retrieve, type Chunk } from "@/lib/knowledge";
 import { hasMistralKey, streamChat, type ChatMessage } from "@/lib/mistral";
-import { buildSystemPrompt } from "@/lib/prompt";
+import { BOOKING_MARKER, buildSystemPrompt } from "@/lib/prompt";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 import { clinic } from "@/lib/clinic";
 
@@ -14,15 +14,14 @@ function parseMessages(body: unknown): IncomingMessage[] | null {
   if (!Array.isArray(messages) || messages.length === 0) return null;
   const parsed: IncomingMessage[] = [];
   for (const m of messages.slice(-MAX_MESSAGES)) {
-    if (
-      !m ||
-      (m.role !== "user" && m.role !== "assistant") ||
-      typeof m.content !== "string" ||
-      !m.content.trim()
-    ) {
+    if (!m || (m.role !== "user" && m.role !== "assistant") || typeof m.content !== "string") {
       return null;
     }
-    parsed.push({ role: m.role, content: m.content.slice(0, MAX_CHARS) });
+    // History comes from the browser, so the booking marker is stripped from it:
+    // only the model's current reply may trigger the form.
+    const content = m.content.replaceAll(BOOKING_MARKER, "").trim().slice(0, MAX_CHARS);
+    if (!content) return null;
+    parsed.push({ role: m.role, content });
   }
   return parsed.at(-1)?.role === "user" ? parsed : null;
 }

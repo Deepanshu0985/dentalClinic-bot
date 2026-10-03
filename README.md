@@ -42,9 +42,19 @@ Visitor message ─▶ /api/chat ─▶ find the most relevant chunks
 ```
 
 - **Retrieval** (`src/lib/knowledge.ts`): uses embeddings when `data/knowledge-index.json` has them, otherwise falls back to keyword search, so the demo also runs before you've run `npm run ingest`. Opening hours, contact and location are always included.
-- **Guardrails** (`src/lib/prompt.ts`): answers only from the clinic information, never confirms appointment times, no diagnoses, emergency escalation.
+- **Guardrails** (`src/lib/prompt.ts`): answers only from the clinic information, never confirms appointment times, no diagnoses or medication doses, emergency escalation (911), no discounts or price matching, stays on topic, and refuses prompt-injection attempts. Conversation history from the browser is validated and the booking marker is stripped from it, so only the model's current reply can open the form.
 - **Cost protection** (`src/lib/rate-limit.ts`): per-IP limits on chat (30 messages / 10 min), lead submissions and dashboard logins; messages are capped at 1,000 characters.
 - **Lead form spam protection**: a hidden honeypot field.
+
+## Testing the bot's behaviour
+
+With the dev server running (`npm run dev`) and a real `MISTRAL_API_KEY`, run:
+
+```bash
+npm run eval
+```
+
+It sends 19 test conversations (prices, insurance, booking, emergencies, diagnosis, medication, unknown services, price matching, off-topic, prompt injection, Spanish, follow-ups) and prints which replies pass their checks, with the full reply for any failure. LLM replies vary, so read failures before changing the prompt.
 
 ## Changing the knowledge base
 
