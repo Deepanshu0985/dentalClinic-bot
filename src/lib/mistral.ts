@@ -19,12 +19,40 @@ function headers() {
   };
 }
 
-export async function embedQuery(text: string): Promise<number[]> {
-  const res = await fetch(`${API_BASE}/embeddings`, {
-    method: "POST",
-    headers: headers(),
-    body: JSON.stringify({ model: EMBED_MODEL, input: [text] }),
+const sleep = (ms: number, signal?: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener("abort", () => {
+      clearTimeout(timer);
+      reject(signal.reason);
+    }, { once: true });
   });
+
+/**
+ * POSTs to the Mistral API, retrying rate limits (429) and temporary server
+ * errors with backoff. Free Mistral plans allow very few requests per second,
+ * and each chat turn makes two calls (embedding + chat) back to back.
+ */
+async function mistralPost(path: string, body: unknown, signal?: AbortSignal): Promise<Response> {
+  const delays = [1000, 2000, 4000];
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify(body),
+      signal,
+    });
+    const retryable = res.status === 429 || res.status >= 500;
+    if (!retryable || attempt >= delays.length) return res;
+
+    const retryAfter = Number(res.headers.get("retry-after"));
+    await res.body?.cancel();
+    await sleep(retryAfter > 0 ? Math.min(retryAfter * 1000, 10_000) : delays[attempt], signal);
+  }
+}
+
+export async function embedQuery(text: string): Promise<number[]> {
+  const res = await mistralPost("/embeddings", { model: EMBED_MODEL, input: [text] });
   if (!res.ok) throw new Error(`Mistral embeddings failed: ${res.status}`);
   const json = (await res.json()) as { data: { embedding: number[] }[] };
   return json.data[0].embedding;
@@ -38,18 +66,11 @@ export async function* streamChat(
   messages: ChatMessage[],
   signal?: AbortSignal,
 ): AsyncGenerator<string> {
-  const res = await fetch(`${API_BASE}/chat/completions`, {
-    method: "POST",
-    headers: headers(),
-    body: JSON.stringify({
-      model: CHAT_MODEL,
-      messages,
-      temperature: 0.3,
-      max_tokens: 600,
-      stream: true,
-    }),
+  const res = await mistralPost(
+    "/chat/completions",
+    { model: CHAT_MODEL, messages, temperature: 0.3, max_tokens: 600, stream: true },
     signal,
-  });
+  );
   if (!res.ok || !res.body) {
     throw new Error(`Mistral chat failed: ${res.status} ${await res.text().catch(() => "")}`);
   }

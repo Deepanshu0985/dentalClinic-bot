@@ -42,14 +42,20 @@ function chunkMarkdown(source, markdown) {
 }
 
 async function embed(texts, apiKey) {
-  const res = await fetch(`${process.env.MISTRAL_API_BASE || "https://api.mistral.ai/v1"}/embeddings`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({ model: EMBED_MODEL, input: texts }),
-  });
+  let res;
+  // Retry rate limits (429) with backoff; free Mistral plans are strict.
+  for (const delay of [0, 2000, 4000, 8000]) {
+    if (delay) await new Promise((r) => setTimeout(r, delay));
+    res = await fetch(`${process.env.MISTRAL_API_BASE || "https://api.mistral.ai/v1"}/embeddings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ model: EMBED_MODEL, input: texts }),
+    });
+    if (res.status !== 429 && res.status < 500) break;
+  }
   if (!res.ok) {
     throw new Error(`Mistral embeddings failed: ${res.status} ${await res.text()}`);
   }
@@ -72,6 +78,7 @@ async function main() {
     const embeddings = [];
     // Small batches keep each request well under the API's input limits.
     for (let i = 0; i < inputs.length; i += 16) {
+      if (i > 0) await new Promise((r) => setTimeout(r, 1200)); // stay under free-tier rate limits
       embeddings.push(...(await embed(inputs.slice(i, i + 16), apiKey)));
     }
     chunks.forEach((c, i) => (c.embedding = embeddings[i]));
