@@ -1,6 +1,8 @@
-// Lead storage. Uses Supabase when SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
-// are set (see supabase/schema.sql); otherwise keeps leads in memory so the
-// demo works with zero setup (in-memory leads reset when the server restarts).
+// Lead storage. Uses Supabase when SUPABASE_URL, SUPABASE_KEY (the public
+// anon/publishable key) and SUPABASE_LEADS_SECRET are set (see
+// supabase/schema.sql); otherwise keeps leads in memory so the demo works with
+// zero setup. In-memory leads are lost on restart and are not shared between
+// serverless functions, so production (e.g. Vercel) needs Supabase.
 
 import "server-only";
 
@@ -24,12 +26,29 @@ const memoryLeads: Lead[] = (store.__memoryLeads ??= []);
 
 function supabaseConfig() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  return url && key ? { url: url.replace(/\/$/, ""), key } : null;
+  const key = process.env.SUPABASE_KEY;
+  const secret = process.env.SUPABASE_LEADS_SECRET;
+  return url && key && secret ? { url: url.replace(/\/$/, ""), key, secret } : null;
 }
 
 export function storageMode(): "supabase" | "memory" {
   return supabaseConfig() ? "supabase" : "memory";
+}
+
+/** Calls a Postgres function through Supabase's REST API. */
+async function rpc(fn: string, args: Record<string, unknown>): Promise<Response> {
+  const sb = supabaseConfig()!;
+  const headers: Record<string, string> = { apikey: sb.key, "Content-Type": "application/json" };
+  // Legacy anon keys are JWTs and also go in Authorization; new sb_publishable_ keys must not.
+  if (sb.key.startsWith("eyJ")) headers.Authorization = `Bearer ${sb.key}`;
+  const res = await fetch(`${sb.url}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ p_secret: sb.secret, ...args }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Supabase ${fn} failed: ${res.status} ${await res.text()}`);
+  return res;
 }
 
 type LeadRow = {
@@ -46,43 +65,26 @@ type LeadRow = {
 };
 
 export async function saveLead(input: LeadInput): Promise<void> {
-  const sb = supabaseConfig();
-  if (!sb) {
+  if (!supabaseConfig()) {
     memoryLeads.unshift({ ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
     memoryLeads.splice(500);
     return;
   }
-  const res = await fetch(`${sb.url}/rest/v1/leads`, {
-    method: "POST",
-    headers: {
-      apikey: sb.key,
-      Authorization: `Bearer ${sb.key}`,
-      "Content-Type": "application/json",
-      Prefer: "return=minimal",
-    },
-    body: JSON.stringify({
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      treatment: input.treatment,
-      preferred_time: input.preferredTime,
-      notes: input.notes,
-      is_new_patient: input.isNewPatient,
-      transcript: input.transcript,
-    }),
+  await rpc("add_lead", {
+    p_name: input.name,
+    p_email: input.email,
+    p_phone: input.phone,
+    p_treatment: input.treatment,
+    p_preferred_time: input.preferredTime,
+    p_notes: input.notes,
+    p_is_new_patient: input.isNewPatient,
+    p_transcript: input.transcript,
   });
-  if (!res.ok) throw new Error(`Supabase insert failed: ${res.status} ${await res.text()}`);
 }
 
 export async function listLeads(): Promise<Lead[]> {
-  const sb = supabaseConfig();
-  if (!sb) return memoryLeads;
-  const res = await fetch(`${sb.url}/rest/v1/leads?select=*&order=created_at.desc&limit=200`, {
-    headers: { apikey: sb.key, Authorization: `Bearer ${sb.key}` },
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`Supabase select failed: ${res.status} ${await res.text()}`);
-  const rows = (await res.json()) as LeadRow[];
+  if (!supabaseConfig()) return memoryLeads;
+  const rows = (await (await rpc("list_leads", {})).json()) as LeadRow[];
   return rows.map((r) => ({
     id: r.id,
     createdAt: r.created_at,

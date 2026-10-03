@@ -28,7 +28,7 @@ Open http://localhost:3000 and click **Chat with Ava**. Leads appear at http://l
 | `MISTRAL_API_KEY` | Yes | Mistral API key from https://console.mistral.ai |
 | `DASHBOARD_PASSWORD` | Yes, for `/dashboard` | Password for the leads dashboard |
 | `MISTRAL_CHAT_MODEL` | No | Chat model, default `mistral-small-latest` |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | No | Store leads in Supabase. Without them, leads are kept in memory and reset when the server restarts. |
+| `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_LEADS_SECRET` | Yes on Vercel | Store leads in Supabase. Without them, leads are kept in memory: fine locally, but on Vercel the chat and the dashboard run as separate functions and won't see each other's leads. |
 
 ## How it works
 
@@ -83,11 +83,19 @@ After deploying, add this before `</body>` on any website:
 
 Optional attributes: `data-color="#0f766e"` (button color) and `data-label="Ask us anything"` (button text). The chat loads in an iframe from `/embed` only when the visitor first opens it.
 
-## Storing leads in Supabase (optional)
+## Storing leads in Supabase
+
+Required for Vercel or any serverless host.
 
 1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the SQL editor.
-3. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (server-side only; never expose it in the browser).
+2. Pick a long random secret and get its SHA-256:
+   ```bash
+   node -e "console.log(require('crypto').createHash('sha256').update(process.argv[1]).digest('hex'))" "<your-secret>"
+   ```
+3. Put the hash into `supabase/schema.sql` (replace `<sha256-of-your-secret>`) and run the file in the SQL editor.
+4. Set `SUPABASE_URL`, `SUPABASE_KEY` (the publishable/anon key) and `SUPABASE_LEADS_SECRET` (the secret itself).
+
+The `leads` table has row level security on with no policies, so the public key alone can't read or write it. The app only uses two database functions, `add_lead` and `list_leads`, which reject calls without the secret.
 
 ## Deploying to Vercel
 
@@ -98,4 +106,4 @@ Optional attributes: `data-color="#0f766e"` (button color) and `data-label="Ask 
 ## Notes
 
 - Brightsmile Dental, its staff, address and phone number are fictional; the phone number uses the reserved 555-01xx range.
-- The in-memory rate limiter and lead store are per server instance. For production, use Supabase for leads and a shared store (such as Upstash Redis) for rate limits.
+- The in-memory rate limiter is per server instance. For high-traffic production, use a shared store (such as Upstash Redis) for rate limits.
