@@ -17,7 +17,14 @@ create table if not exists public.leads (
   preferred_time text not null default '',
   notes text not null default '',
   is_new_patient boolean not null default true,
-  transcript text not null default ''
+  transcript text not null default '',
+  -- Filled in by the AI follow-up automation (src/lib/triage.ts).
+  priority text check (priority is null or priority in ('urgent', 'high_value', 'routine')),
+  ai_summary text not null default '',
+  ai_reason text not null default '',
+  reply_subject text not null default '',
+  reply_body text not null default '',
+  triaged_at timestamptz
 );
 alter table public.leads enable row level security;
 revoke all on public.leads from anon, authenticated;
@@ -46,7 +53,7 @@ begin
 end;
 $$;
 
-create or replace function public.add_lead(
+create or replace function public.add_lead_v2(
   p_secret text,
   p_name text,
   p_email text,
@@ -57,6 +64,31 @@ create or replace function public.add_lead(
   p_is_new_patient boolean,
   p_transcript text
 )
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id uuid;
+begin
+  perform private.check_leads_secret(p_secret);
+  insert into public.leads (name, email, phone, treatment, preferred_time, notes, is_new_patient, transcript)
+  values (p_name, p_email, p_phone, p_treatment, p_preferred_time, p_notes, p_is_new_patient, p_transcript)
+  returning id into v_id;
+  return v_id;
+end;
+$$;
+
+create or replace function public.update_lead_triage(
+  p_secret text,
+  p_id uuid,
+  p_priority text,
+  p_ai_summary text,
+  p_ai_reason text,
+  p_reply_subject text,
+  p_reply_body text
+)
 returns void
 language plpgsql
 security definer
@@ -64,12 +96,18 @@ set search_path = ''
 as $$
 begin
   perform private.check_leads_secret(p_secret);
-  insert into public.leads (name, email, phone, treatment, preferred_time, notes, is_new_patient, transcript)
-  values (p_name, p_email, p_phone, p_treatment, p_preferred_time, p_notes, p_is_new_patient, p_transcript);
+  update public.leads
+  set priority = p_priority,
+      ai_summary = p_ai_summary,
+      ai_reason = p_ai_reason,
+      reply_subject = p_reply_subject,
+      reply_body = p_reply_body,
+      triaged_at = now()
+  where id = p_id;
 end;
 $$;
 
-create or replace function public.list_leads(p_secret text)
+create or replace function public.list_leads_v2(p_secret text)
 returns setof public.leads
 language plpgsql
 security definer
@@ -82,7 +120,9 @@ end;
 $$;
 
 revoke all on function private.check_leads_secret(text) from public, anon, authenticated;
-revoke all on function public.add_lead(text, text, text, text, text, text, text, boolean, text) from public;
-revoke all on function public.list_leads(text) from public;
-grant execute on function public.add_lead(text, text, text, text, text, text, text, boolean, text) to anon;
-grant execute on function public.list_leads(text) to anon;
+revoke all on function public.add_lead_v2(text, text, text, text, text, text, text, boolean, text) from public, authenticated;
+revoke all on function public.update_lead_triage(text, uuid, text, text, text, text, text) from public, authenticated;
+revoke all on function public.list_leads_v2(text) from public, authenticated;
+grant execute on function public.add_lead_v2(text, text, text, text, text, text, text, boolean, text) to anon;
+grant execute on function public.update_lead_triage(text, uuid, text, text, text, text, text) to anon;
+grant execute on function public.list_leads_v2(text) to anon;

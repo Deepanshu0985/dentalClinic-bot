@@ -103,3 +103,15 @@ export async function* streamChat(
     }
   }
 }
+
+/** Non-streaming chat call that asks Mistral for a JSON object and parses it. */
+export async function chatJSON<T>(messages: ChatMessage[], signal?: AbortSignal): Promise<T> {
+  const res = await mistralPost(
+    "/chat/completions",
+    { model: CHAT_MODEL, messages, temperature: 0.2, max_tokens: 700, response_format: { type: "json_object" } },
+    { signal },
+  );
+  if (!res.ok) throw new Error(`Mistral chat failed: ${res.status} ${await res.text().catch(() => "")}`);
+  const json = (await res.json()) as { choices: { message: { content: string } }[] };
+  return JSON.parse(json.choices[0].message.content) as T;
+}

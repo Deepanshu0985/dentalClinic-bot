@@ -1,4 +1,7 @@
-import { saveLead } from "@/lib/leads";
+import { after } from "next/server";
+import { saveLead, saveTriage } from "@/lib/leads";
+import { notifyNewLead } from "@/lib/notify";
+import { triageLead } from "@/lib/triage";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 function str(value: unknown, max: number): string {
@@ -37,11 +40,23 @@ export async function POST(request: Request) {
     return Response.json({ error: "Please check your email address." }, { status: 400 });
   }
 
+  let id: string;
   try {
-    await saveLead(lead);
+    id = await saveLead(lead);
   } catch (err) {
     console.error("Saving lead failed", err);
     return Response.json({ error: "Something went wrong. Please call us." }, { status: 500 });
   }
+  // AI follow-up automation runs after the visitor already has their response.
+  after(async () => {
+    try {
+      const triage = await triageLead(lead);
+      await saveTriage(id, triage);
+      await notifyNewLead(lead, triage);
+    } catch (err) {
+      console.error("Lead follow-up automation failed", err);
+    }
+  });
+
   return Response.json({ ok: true });
 }

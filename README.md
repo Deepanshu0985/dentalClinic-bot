@@ -5,7 +5,8 @@ A demo website for a fictional dental clinic with an AI assistant ("Ava") that:
 - **Answers questions from the clinic's own information** (prices, insurance, hours, policies, FAQ) using retrieval-augmented generation (RAG) with Mistral
 - **Says "I'm not sure" instead of inventing answers**, and gives emergency guidance (including when to call 911)
 - **Captures leads**: an appointment request form appears in the chat when a visitor wants to book
-- **Shows leads in a password-protected dashboard** (`/dashboard`), including the chat transcript
+- **AI lead follow-up automation**: every request is triaged by AI (urgent / high value / routine), summarised, and gets a drafted reply email the front desk can review and send in one click; optional Slack/Discord alert via `LEAD_WEBHOOK_URL`
+- **Shows leads in a password-protected dashboard** (`/dashboard`), urgent first, with the AI summary, drafted reply and chat transcript
 - **Installs on any website with one line** of code (`public/widget.js`)
 
 Built with Next.js 16, TypeScript, Tailwind CSS and the Mistral API (`mistral-small-latest` for chat, `mistral-embed` for search).
@@ -28,6 +29,7 @@ Open http://localhost:3000 and click **Chat with Ava**. Leads appear at http://l
 | `MISTRAL_API_KEY` | Yes | Mistral API key from https://console.mistral.ai |
 | `DASHBOARD_PASSWORD` | Yes, for `/dashboard` | Password for the leads dashboard |
 | `MISTRAL_CHAT_MODEL` | No | Chat model, default `mistral-small-latest` |
+| `LEAD_WEBHOOK_URL` | No | Slack or Discord incoming-webhook URL for new-lead alerts |
 | `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_LEADS_SECRET` | Yes on Vercel | Store leads in Supabase. Without them, leads are kept in memory: fine locally, but on Vercel the chat and the dashboard run as separate functions and won't see each other's leads. |
 
 ## How it works
@@ -39,12 +41,14 @@ Visitor message ─▶ /api/chat ─▶ find the most relevant chunks
                               ─▶ Mistral chat (system prompt + chunks + conversation)
                               ─▶ streamed reply ─▶ chat widget
 "I want to book" ─▶ reply ends with [[BOOKING_FORM]] ─▶ widget shows the form ─▶ /api/leads ─▶ /dashboard
+                                                     └─ after response: AI triage + drafted reply (+ webhook alert)
 ```
 
 - **Retrieval** (`src/lib/knowledge.ts`): uses embeddings when `data/knowledge-index.json` has them, otherwise falls back to keyword search, so the demo also runs before you've run `npm run ingest`. Opening hours, contact and location are always included.
 - **Guardrails** (`src/lib/prompt.ts`): answers only from the clinic information, never confirms appointment times, no diagnoses or medication doses, emergency escalation (911), no discounts or price matching, stays on topic, and refuses prompt-injection attempts. Conversation history from the browser is validated and the booking marker is stripped from it, so only the model's current reply can open the form.
 - **Cost protection** (`src/lib/rate-limit.ts`): per-IP limits on chat (30 messages / 10 min), lead submissions and dashboard logins; messages are capped at 1,000 characters.
 - **Lead form spam protection**: a hidden honeypot field.
+- **Follow-up automation** (`src/lib/triage.ts`): runs after the response with Next.js `after()`, asks Mistral for a JSON triage and drafted email, and falls back to keyword rules if AI is unavailable. The rules can upgrade a lead to urgent but the AI can never downgrade an urgent one.
 
 ## Testing the bot's behaviour
 
@@ -95,7 +99,7 @@ Required for Vercel or any serverless host.
 3. Put the hash into `supabase/schema.sql` (replace `<sha256-of-your-secret>`) and run the file in the SQL editor.
 4. Set `SUPABASE_URL`, `SUPABASE_KEY` (the publishable/anon key) and `SUPABASE_LEADS_SECRET` (the secret itself).
 
-The `leads` table has row level security on with no policies, so the public key alone can't read or write it. The app only uses two database functions, `add_lead` and `list_leads`, which reject calls without the secret.
+The `leads` table has row level security on with no policies, so the public key alone can't read or write it. The app only uses the database functions `add_lead_v2`, `update_lead_triage` and `list_leads_v2`, which reject calls without the secret.
 
 ## Deploying to Vercel
 

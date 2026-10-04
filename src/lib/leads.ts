@@ -5,6 +5,7 @@
 // serverless functions, so production (e.g. Vercel) needs Supabase.
 
 import "server-only";
+import type { Priority, Triage } from "./triage";
 
 export type LeadInput = {
   name: string;
@@ -17,7 +18,12 @@ export type LeadInput = {
   transcript: string;
 };
 
-export type Lead = LeadInput & { id: string; createdAt: string };
+export type Lead = LeadInput & {
+  id: string;
+  createdAt: string;
+  /** Null until the AI follow-up automation has triaged the lead. */
+  triage: Triage | null;
+};
 
 // Kept on globalThis because Next.js bundles route handlers and pages
 // separately; a plain module-level array would not be shared between them.
@@ -62,15 +68,22 @@ type LeadRow = {
   notes: string;
   is_new_patient: boolean;
   transcript: string;
+  priority: Priority | null;
+  ai_summary: string;
+  ai_reason: string;
+  reply_subject: string;
+  reply_body: string;
 };
 
-export async function saveLead(input: LeadInput): Promise<void> {
+/** Saves a lead and returns its id. */
+export async function saveLead(input: LeadInput): Promise<string> {
   if (!supabaseConfig()) {
-    memoryLeads.unshift({ ...input, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
+    const id = crypto.randomUUID();
+    memoryLeads.unshift({ ...input, id, createdAt: new Date().toISOString(), triage: null });
     memoryLeads.splice(500);
-    return;
+    return id;
   }
-  await rpc("add_lead", {
+  const res = await rpc("add_lead_v2", {
     p_name: input.name,
     p_email: input.email,
     p_phone: input.phone,
@@ -80,11 +93,28 @@ export async function saveLead(input: LeadInput): Promise<void> {
     p_is_new_patient: input.isNewPatient,
     p_transcript: input.transcript,
   });
+  return (await res.json()) as string;
+}
+
+export async function saveTriage(id: string, triage: Triage): Promise<void> {
+  if (!supabaseConfig()) {
+    const lead = memoryLeads.find((l) => l.id === id);
+    if (lead) lead.triage = triage;
+    return;
+  }
+  await rpc("update_lead_triage", {
+    p_id: id,
+    p_priority: triage.priority,
+    p_ai_summary: triage.summary,
+    p_ai_reason: triage.reason,
+    p_reply_subject: triage.replySubject,
+    p_reply_body: triage.replyBody,
+  });
 }
 
 export async function listLeads(): Promise<Lead[]> {
   if (!supabaseConfig()) return memoryLeads;
-  const rows = (await (await rpc("list_leads", {})).json()) as LeadRow[];
+  const rows = (await (await rpc("list_leads_v2", {})).json()) as LeadRow[];
   return rows.map((r) => ({
     id: r.id,
     createdAt: r.created_at,
@@ -96,5 +126,14 @@ export async function listLeads(): Promise<Lead[]> {
     notes: r.notes,
     isNewPatient: r.is_new_patient,
     transcript: r.transcript,
+    triage: r.priority
+      ? {
+          priority: r.priority,
+          summary: r.ai_summary,
+          reason: r.ai_reason,
+          replySubject: r.reply_subject,
+          replyBody: r.reply_body,
+        }
+      : null,
   }));
 }
